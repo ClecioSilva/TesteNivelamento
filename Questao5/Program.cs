@@ -1,5 +1,7 @@
 using MediatR;
+using Microsoft.OpenApi.Models;
 using Questao5.Infrastructure.Sqlite;
+
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,10 @@ builder.Services.AddSingleton<IDatabaseBootstrap, DatabaseBootstrap>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => 
+{
+    c.SwaggerDoc("v1", new OpenApiInfo {Title = "Your API", Version = "v1"});
+});
 
 var app = builder.Build();
 
@@ -23,7 +28,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -33,13 +41,14 @@ app.UseAuthorization();
 app.MapControllers();
 
 // sqlite
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-app.Services.GetService<IDatabaseBootstrap>().Setup();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+//#pragma warning disable CS8602 // Dereference of a possibly null reference.
+var databaseBootstrap = app.Services.GetService<IDatabaseBootstrap>();
+databaseBootstrap?.Setup();
+//#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
 app.Run();
 
-// Informações úteis:
+// Informaï¿½ï¿½es ï¿½teis:
 // Tipos do Sqlite - https://www.sqlite.org/datatype3.html
 
 
